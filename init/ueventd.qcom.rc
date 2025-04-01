@@ -59,6 +59,10 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+#Import rc file
+import /vendor/etc/ueventd.qcom.userdebug.rc
+
+
 # Firmware directory Path
 # Below macro will be read by uevent and path will
 # be added to search path for firmware loading
@@ -394,7 +398,10 @@ subsystem mem_buf_vm
 
 # eSE permissions
 /dev/st54spi_gpio         0660   system     system
-/dev/stsafe320_gpio       0660   system     system
+# ifdef NT_EDIT
+# Nothing add eSE permissions /ARCA-22
+/dev/st54spi              0660   secure_element     secure_element
+# endif NT_EDIT
 
 # UIO devices
 /dev/uio0                 0660   system     system
@@ -436,6 +443,9 @@ subsystem mem_buf_vm
 /dev/block/platform/soc/7c4000.sdhci/by-name/frp        0600   system     system
 /dev/block/platform/soc/4744000.sdhci/by-name/frp       0600   system     system
 /dev/block/platform/soc/4804000.ufshc/by-name/frp       0600   system     system
+
+/dev/block/platform/soc/1d84000.ufshc/by-name/binfo   0660    system     system
+/dev/block/platform/soc/7c4000.sdhci/by-name/binfo    0660    system     system
 
 # This is temporary while using SD card for initial bring-up
 /dev/block/platform/soc/8804000.sdhci/by-name/frp       0600   system     system

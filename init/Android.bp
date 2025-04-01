@@ -16,13 +16,6 @@ prebuilt_etc {
    sub_dir: "init/hw",
    vendor: true,
 }
- 
-prebuilt_etc {
-    name: "init.oplus.rc",
-    src: "init.oplus.rc",
-    sub_dir: "init",
-    device_specific: true,
-}
 
 prebuilt_etc {
     name: "init.qcom.rc",
@@ -46,13 +39,6 @@ prebuilt_etc {
 }
 
 prebuilt_etc {
-    name: "ueventd.oplus.rc",
-    filename: "ueventd.rc",
-    src: "ueventd.oplus.rc",
-    device_specific: true,
-}
-
-prebuilt_etc {
     name: "ueventd.qcom.rc",
     filename: "ueventd.rc",
     src: "ueventd.qcom.rc",
@@ -66,20 +52,14 @@ sh_binary {
 }
 
 sh_binary {
-    name: "init.kernel.post_boot-pineapple_default_2_3_2_1.sh",
-    src: "init.kernel.post_boot-pineapple_default_2_3_2_1.sh",
+    name: "init.kernel.post_boot-volcano.sh",
+    src: "init.kernel.post_boot-volcano.sh",
     vendor: true,
 }
 
 sh_binary {
-    name: "init.kernel.post_boot.sh",
-    src: "init.kernel.post_boot.sh",
-    vendor: true,
-}
-
-sh_binary {
-    name: "init.qcom.post_boot.sh",
-    src: "init.qcom.post_boot.sh",
+    name: "init.kernel.post_boot-volcano_default_4_3_1.sh",
+    src: "init.kernel.post_boot-volcano_default_4_3_1.sh",
     vendor: true,
 }
 
