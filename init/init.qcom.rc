@@ -27,7 +27,7 @@
 # Changes from Qualcomm Innovation Center are provided under the following
 # license:
 #
-# Copyright (c) 2022, 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -75,14 +75,13 @@ on early-init
     symlink /vendor/dsp /dsp
 
   # Change ownership of sysfs power control node
-    chown system graphics /sys/devices/platform/soc/ae00000.qcom,mdss_mdp/power/control
-    chown system graphics /sys/devices/platform/soc/a800000.qcom,mdss_mdp/power/control
-    chmod 664 /sys/devices/platform/soc/ae00000.qcom,mdss_mdp/power/control
-    chmod 664 /sys/devices/platform/soc/a800000.qcom,mdss_mdp/power/control
+    chown system graphics /sys/class/drm/card0/device/power/control
 
-    #Disable UFS LPM to save boot time
+    #Disable UFS clock scaling
     write /sys/bus/platform/devices/1d84000.ufshc/clkscale_enable 0
+    #Disable UFS auto_hibern8
     write /sys/bus/platform/devices/1d84000.ufshc/auto_hibern8 0
+    #Disable UFS clock gating
     write /sys/bus/platform/devices/1d84000.ufshc/clkgate_enable 0
 
     chown root system /dev/kmsg
@@ -126,6 +125,20 @@ on early-boot
     chmod 0664 /mnt/vendor/persist/data/pfm/licenses/store_4
 
 on boot
+    # sandro.wan@network, add for user build support qdss
+    #add permission for block_size, mem_type, mem_size nodes to collect diag over QDSS by ODL
+    #application by "oem_2902" group
+    chown root oem_2902 /sys/devices/platform/soc/10048000.tmc/coresight-tmc-etr/block_size
+    chmod 660 /sys/devices/platform/soc/10048000.tmc/coresight-tmc-etr/block_size
+    chown root oem_2902 /sys/devices/platform/soc/10048000.tmc/coresight-tmc-etr/buffer_size
+    chmod 660 /sys/devices/platform/soc/10048000.tmc/coresight-tmc-etr/buffer_size
+    chown system system /sys/bus/coresight/devices/coresight-tmc-etr/out_mode
+    chown system system /sys/bus/coresight/devices/coresight-tmc-etr/enable_sink
+    chown system system /sys/bus/coresight/devices/coresight-modem-diag/enable_source
+    chown root oem_2902 /sys/bus/coresight/reset_source_sink
+    chmod 660 /sys/bus/coresight/reset_source_sink
+    # add for user build support qdss end
+
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
     chown bluetooth net_bt /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt /sys/class/rfkill/rfkill0/state
@@ -229,6 +242,9 @@ on boot
     chown system system /sys/class/backlight/panel0-backlight/max_brightness
     chown system system /sys/class/backlight/panel1-backlight/brightness
     chown system system /sys/class/backlight/panel1-backlight/max_brightness
+
+    # NT_EDIT ARCA-173 LHBM add to update fp press status
+    chmod 0666 sys/panel_feature/fp_status
 
     # Allow access to sensors device attributes
     chown system system /sys/class/sensors/MPU6050-accel/enable
@@ -418,6 +434,11 @@ on post-fs-data
     mkdir /data/vendor/swap 0770 root system
     chmod 2770 /data/vendor/swap
 
+    # set aggressive read ahead for dm-0 and dm-1 during boot up
+    write /sys/block/dm-0/queue/read_ahead_kb 2048
+    write /sys/block/dm-1/queue/read_ahead_kb 2048
+    write /sys/block/dm-2/queue/read_ahead_kb 2048
+
     # Create vpp directory
     mkdir /data/vendor/vpp 0770 media media
 
@@ -439,6 +460,12 @@ service iop /system/vendor/bin/iop
     group root
     disabled
     socket iop seqpacket 0666 root system
+
+service qcomsysd /system/vendor/bin/qcom-system-daemon
+    class main
+    user root
+    group root diag oem_2901
+    disabled
 
 # Not launch qcomsysd process in USER BUILD
 on property:persist.vendor.qcomsysd.enabled=1 && property:ro.build.type=userdebug
@@ -506,10 +533,15 @@ on property:persist.vendor.sys.rawdump_copy=0
 
 on property:sys.boot_completed=1
     write /dev/kmsg "Boot completed "
-    #Enable UFS LPM back
+    #Enable UFS clock scaling back
     write /sys/bus/platform/devices/1d84000.ufshc/clkscale_enable 1
+    #Enable UFS auto_hibern8 back
     write /sys/bus/platform/devices/1d84000.ufshc/auto_hibern8 5000
+    #Enable UFS clock gating back
     write /sys/bus/platform/devices/1d84000.ufshc/clkgate_enable 1
+    #Reset read ahead for dm-0 and dm-1 to 512kb
+    write /sys/block/dm-0/queue/read_ahead_kb 512
+    write /sys/block/dm-1/queue/read_ahead_kb 512
     #WDSP FW boot sysfs node used by STHAL
     chown media audio /sys/kernel/wdsp0/boot
     chown media audio /sys/kernel/wcd_cpe0/fw_name
@@ -687,7 +719,7 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service ssgqmigd /vendor/bin/ssgqmigd64
+service ssgqmigd /vendor/bin/ssgqmigd
     class late_start
     user radio
     group radio gps system
@@ -698,6 +730,11 @@ service mlid /vendor/bin/mlid
     user gps
     group gps
     socket mlid stream 0666 gps gps
+
+service loc_launcher /system/vendor/bin/loc_launcher
+    class late_start
+    user gps
+    group gps
 
 service qcom-sh /vendor/bin/init.qcom.sh
     class late_start
@@ -865,12 +902,18 @@ service esepmdaemon /system/vendor/bin/esepmdaemon
     group nfc
 
 on charger
-    #Enable UFS LPM back
-    write /sys/bus/platform/devices/1d84000.ufshc/clkscale_enable 1
-    write /sys/bus/platform/devices/1d84000.ufshc/auto_hibern8 5000
-    write /sys/bus/platform/devices/1d84000.ufshc/clkgate_enable 1
     setprop persist.sys.usb.config mass_storage
     start qcom-post-boot
+##NT,start charge service
+    start vendor.charge-default-poweroff
+##Stop charge service
+
+##NT,start charge service
+service vendor.charge-default-poweroff /vendor/bin/hw/vendor.noth.hardware.charge-service
+    class core
+    group system
+    disabled
+##Stop charge sevice
 
 #add poweroffhandler
 service poweroffhandler /system/vendor/bin/poweroffhandler

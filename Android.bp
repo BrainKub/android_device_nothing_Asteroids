@@ -4,25 +4,19 @@
 //
 
 soong_namespace {
-}
-
-install_symlink {
-    name: "firmware_wlanmdsp.otaupdate_symlink",
-    vendor: true,
-    installed_location: "firmware/wlanmdsp.otaupdate",
-    symlink_target: "/data/vendor/firmware/wlanmdsp.mbn",
-}
-
-install_symlink {
-    name: "firmware_wlan_mac.bin_symlink",
-    vendor: true,
-    installed_location: "firmware/wlan/qca_cld/kiwi_v2/wlan_mac.bin",
-    symlink_target: "/mnt/vendor/persist/kiwi_v2/wlan_mac.bin",
+    imports: [
+        "hardware/qcom-caf/bootctrl",
+        "hardware/nothing",
+        "hardware/google/interfaces",
+        "hardware/google/pixel",
+        "vendor/nothing/Asteroids",
+        "vendor/qcom/opensource/commonsys-intf/display",
+    ],
 }
 
 install_symlink {
     name: "firmware_WCNSS_qcom_cfg.ini_symlink",
     vendor: true,
-    installed_location: "firmware/wlan/qca_cld/kiwi_v2/WCNSS_qcom_cfg.ini",
-    symlink_target: "/odm/vendor/etc/wifi/WCNSS_qcom_cfg.ini",
+    installed_location: "firmware/wlan/qca_cld/WCNSS_qcom_cfg.ini",
+    symlink_target: "/vendor/etc/wifi/qca6750/WCNSS_qcom_cfg.ini",
 }
