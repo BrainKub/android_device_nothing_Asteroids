@@ -445,7 +445,7 @@ vendor/lib64/libmorpho_RapidEffect.so
 vendor/lib64/libmpbase.so
 vendor/lib64/libntcamcommonutils.so
 vendor/lib64/libntcamimage_io.so
-vendor/lib64/libntcamskia.so
+vendor/lib64/libntcamskia.so;DISABLE_CHECKELF
 vendor/lib64/libntcamyuv.so
 vendor/lib64/libntf.so
 vendor/lib64/libntofflinepostproc.so
@@ -965,7 +965,7 @@ vendor/bin/edgnss-daemon
 vendor/bin/engine-service
 vendor/bin/hw/android.hardware.gnss-aidl-service-qti
 vendor/bin/loc_launcher
-vendor/bin/lowi-server
+vendor/bin/lowi-server;DISABLE_CHECKELF
 vendor/bin/mlid
 vendor/bin/slim_daemon
 vendor/bin/xtra-daemon
@@ -1196,7 +1196,7 @@ vendor/lib64/libqc2audio_base.so
 vendor/lib64/libqc2audio_basecodec.so
 vendor/lib64/libqc2audio_core.so
 vendor/lib64/libqc2audio_hooks.so
-vendor/lib64/libqc2audio_hwaudiocodec.so
+vendor/lib64/libqc2audio_hwaudiocodec.so;DISABLE_CHECKELF
 vendor/lib64/libqc2audio_platform.so
 vendor/lib64/libqc2audio_swaudiocodec.so
 vendor/lib64/libqc2audio_utils.so
@@ -1472,7 +1472,7 @@ system_ext/priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk
 vendor/bin/hw/qcrilNrd
 vendor/bin/ks
 vendor/bin/nicmd
-vendor/bin/qms
+vendor/bin/qms;DISABLE_CHECKELF
 vendor/bin/qsap_dcfd
 vendor/bin/qtigetprop
 vendor/bin/qtisetprop
