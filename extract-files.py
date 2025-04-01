@@ -48,6 +48,16 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('android.hidl.base@1.0.so', 'libhidlbase.so'),
     'system_ext/lib64/libwfdservice.so': blob_fixup()
         .replace_needed('android.media.audio.common.types-V2-cpp.so', 'android.media.audio.common.types-V4-cpp.so'),
+    ('vendor/lib64/libarcsoft_dark_vision_raw.so'): blob_fixup()
+        .clear_symbol_version('remote_register_buf')
+        .clear_symbol_version('rpcmem_alloc')
+        .clear_symbol_version('rpcmem_free'),
+    ('vendor/lib64/libmorpho_RapidEffect.so'): blob_fixup()
+        .clear_symbol_version('AHardwareBuffer_allocate')
+        .clear_symbol_version('AHardwareBuffer_describe')
+        .clear_symbol_version('AHardwareBuffer_lockPlanes')
+        .clear_symbol_version('AHardwareBuffer_release')
+        .clear_symbol_version('AHardwareBuffer_unlock'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
